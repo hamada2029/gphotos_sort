@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+        <title>Popup</title>
+    </head>
+    
+    <body>
+
+        <div align="center">
+            <h5>CURRENT FILE NAME</h5>
+        </div>
+
+        <div align="center">
+            <progress id="prog1" name="file" max="100" value="0">
+            </progress>
+        </div>
+
+        <div align="center">
+            <!-- 直接送れないのでグローバルページから -->
+            <button id="run_button">Sort by Name</button>
+        </div>
+
+        <script type="text/javascript" charset="utf-8" src="jquery-3.3.1.min.js">
+        </script>
+        <script type="text/javascript" charset="utf-8" src="gphotos_sort.js">
+        </script>
+        <script type="text/javascript" charset="utf-8" src="popup.js">
+        </script>   
+    </body>
+
+</html>

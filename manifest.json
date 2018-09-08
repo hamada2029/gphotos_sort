@@ -1,0 +1,36 @@
+{
+    "name": "GPhotos sort",
+    "version": "1.0",
+    "manifest_version": 2,
+    "description": "Google photos album sort.",
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "icons":{
+        "16" : "i16.png",
+        "48" : "i48.png",
+        "128" : "i128.png"
+    },
+    "content_scripts":[
+        {
+            "matches": ["https://photos.google.com/album/*"],
+            "js": [
+                "jquery-3.3.1.min.js",
+                "content.js"
+            ]
+        }
+    ],
+    "page_action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16" : "i16.png",
+            "48" : "i48.png",
+            "128" : "i128.png"
+        },
+        "default_title": "Google Photos Album Sort"
+    },
+    "permissions": [
+        "tabs"
+    ]
+}
