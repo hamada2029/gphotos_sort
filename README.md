@@ -1,4 +1,4 @@
-Google Photos Sort
+Google Photos Sort By Name
 ====
 Sort Google Photos album images by filename.
 
@@ -13,7 +13,7 @@ Please check link below.
 <https://developer.chrome.com/extensions/getstarted>
 
 ## Usage
-![](popup_example.png)  
+![](https://user-images.githubusercontent.com/8012459/45261373-6f68a800-b43b-11e8-91db-d838e04b3f6f.png)  
 Click toolbar icon at your album page.  
 Push "Sort By Name" button on popup.  
 Progress will start.  
