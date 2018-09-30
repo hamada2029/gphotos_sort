@@ -31,9 +31,15 @@ function onTabs(tabs) {
 
     var al = {};
     al.tab = activeTab;
-    al.key = activeTab.url.match(
+    console.log(activeTab.url);
+    var m = activeTab.url.match(
         /https:\/\/photos.google.com\/album\/([^\/]+)/
-    )[1];
+    );
+    if (! m) {
+        alert('Not album');
+        return;
+    }
+    al.key = m[1];
     getDirectAlbum(al);
 }
 
