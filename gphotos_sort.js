@@ -118,7 +118,10 @@ function parse_direct_album_page(src, al){
     al.f_sid = wiz_global_data.FdrFJe;
     al.at_ = wiz_global_data.SNlM0e;
 
-    var stat_j_src = src.split('data:function(){return ')[2];
+    var script_p = /<script nonce=[^<]+key: 'ds:1'[^<]+<\/script>/;
+    var script_src = src.match(script_p)[0];
+
+    var stat_j_src = script_src.split('data:function(){return ')[1];
     stat_j_src = stat_j_src.split('}});')[0];
     var stat_j = JSON.parse(stat_j_src);
 
