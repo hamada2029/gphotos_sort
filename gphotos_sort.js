@@ -180,7 +180,7 @@ function getDirectAlbum(al) {
     // 単にURLがアルバムというだけではソースが一定で無いので
     // 取得したほうが早い。
     $.ajax({
-        url: 'https://photos.google.com/album/' + al.key,
+        url: 'https://photos.google.com/' + al.type + '/' + al.key,
         type: 'GET',
         dataType: 'text', // res data type
         async: true

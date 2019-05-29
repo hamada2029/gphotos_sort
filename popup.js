@@ -33,13 +33,14 @@ function onTabs(tabs) {
     al.tab = activeTab;
     console.log(activeTab.url);
     var m = activeTab.url.match(
-        /https:\/\/photos.google.com\/album\/([^\/]+)/
+        /https:\/\/photos.google.com\/(album|share)\/([^\/]+)/
     );
     if (! m) {
         alert('Not album');
         return;
     }
-    al.key = m[1];
+    al.type = m[1];
+    al.key = m[2];
     getDirectAlbum(al);
 }
 
