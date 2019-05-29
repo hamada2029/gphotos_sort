@@ -91,6 +91,7 @@ function sortByName(a, b){
 
 function onAjaxSuccess(res, status, xhr, al){
     var j_src = res.split(/\n\d+\n/)[1];
+    //console.log(j_src);
     var j = JSON.parse(j_src);
     var j2 = JSON.parse(j[0][2]);
     var io = {};
@@ -141,15 +142,22 @@ function parse_direct_album_page(src, al){
     al.imgs = stat_j[1];
     al.new_imgs = [];
 
+    // fetch_album_archive_data(al, al.imgs[0][0]);
+    // return;
+
     function done_get_img_name(res, status, xhr) {
         onAjaxSuccess(res, status, xhr, al);
     }
 
-    for (var i = 0; i < al.imgs.length; i++) {
-        var imgkey = al.imgs[i][0];
-        // alert(imgkey);
-        var f_req = '[[["fDcn4b", "[\\"' + imgkey + '\\",1]", null, "DMzJyf:0|response"]]]';
-        var data = {'f.req': f_req, 'at': al.at_};
+    function _each(imgkey){
+        var j0 = [imgkey, 1];
+        var j1 = [[[
+            "fDcn4b",
+            JSON.stringify(j0),
+            null,
+            "DMzJyf:0|response"
+        ]]];
+        var data = {'f.req': JSON.stringify(j1), 'at': al.at_};
 
         // jquery slimにajaxない
         $.ajax({
@@ -164,7 +172,13 @@ function parse_direct_album_page(src, al){
         ).fail(
             fail_func
         );
+    }
 
+    for (var i = 0; i < al.imgs.length; i++) {
+        var imgkey = al.imgs[i][0];
+        // alert(imgkey);
+        var tm = 1000 * Math.floor(i / 5); // 5files/sec
+        setTimeout(_each, tm, imgkey);
     }
 }
 
