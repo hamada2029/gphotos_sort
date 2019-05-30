@@ -1,16 +1,18 @@
 
 
 
-function make_f_req(album_key, imgs){
+function make_f_req(album_key, imgs, typ){
     var XXimg_keysXX = [];
     for (var i = 1; i < imgs.length; i++) {
         var io = imgs[i];
         XXimg_keysXX.push([[io.key]]);
     }
+    var num = 3;
+    // if(typ == 'share'){num = 3;}
     var j1 = [
         album_key,
         [],
-        3,
+        num,
         null,
         XXimg_keysXX, // ベースに続く順
         [[imgs[0].key]]// ベースになるメディア
@@ -47,7 +49,7 @@ function sortImgs(al){
         reload(al);
     }
 
-    var f_req = make_f_req(al.key, al.new_imgs);
+    var f_req = make_f_req(al.key, al.new_imgs, al.type);
     var q_o = {
         '_reqid': '1103478',
         'bl': 'boq_photosuiserver_20180820.09_p0',
