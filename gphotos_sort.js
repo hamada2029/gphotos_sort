@@ -79,9 +79,11 @@ function sortImgs(al){
 }
 
 
-function sortByName(a, b){
+function sortBy(a, b){
     var an = a.name.toString().toLowerCase();
     var bn = b.name.toString().toLowerCase();
+    an = an.replace(numP, numReplacer);
+    bn = bn.replace(numP, numReplacer);
     if(an < bn){
         return -1;
     }else if(an > bn){
@@ -109,7 +111,7 @@ function onAjaxSuccess(res, status, xhr, al){
     addPercent(per);
     // iは結果が返る前にに上書きされてる
     if (al.new_imgs.length == al.imgs.length){
-        al.new_imgs.sort(sortByName);
+        al.new_imgs.sort(sortBy);
         sortImgs(al);
     }
 }
