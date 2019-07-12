@@ -3,6 +3,13 @@ function addName(nm) {
     $("h5").text(nm);
 }
 
+function spin(){
+    $('i').addClass('rotate-anime');
+}
+
+function stop(){
+    $('i').removeClass('rotate-anime');
+}
 
 function addPercent(per) {
     $("#prog1").val(per);
@@ -41,7 +48,7 @@ function onTabs(tabs) {
     }
     al.type = m[1];
     al.key = m[2];
-    getDirectAlbum(al);
+    new Sorter(al).run();
 }
 
 

@@ -1,212 +1,237 @@
+/*globals $ addName addPercent numP numReplacer reload spin stop*/
 
+class Sorter{
 
-
-function make_f_req(album_key, imgs, typ){
-    var XXimg_keysXX = [];
-    for (var i = 1; i < imgs.length; i++) {
-        var io = imgs[i];
-        XXimg_keysXX.push([[io.key]]);
-    }
-    var num = 3;
-    // if(typ == 'share'){num = 3;}
-    var j1 = [
-        album_key,
-        [],
-        num,
-        null,
-        XXimg_keysXX, // ベースに続く順
-        [[imgs[0].key]]// ベースになるメディア
-    ];
-    return [
-        [
-            [
-                "QD9nKf",
-                JSON.stringify(j1),
-                null,
-                "generic"
-            ]
-        ]
-    ];
-
-}
-
-
-function fail_func(res, status, xhr) {
-    alert(res);
-    alert(status);
-    alert(xhr.status);
-}
-
-
-function sortImgs(al){
-
-    function done_sort(res, status, xhr) {
-        console.log(res);
-        console.log(status);
-        console.log(xhr.status);
-        console.log('sort success');
-        // reload
-        reload(al);
+    constructor(al) {
+        this.al = al;
+        this.settings = {};
+        console.log('album_key:' + al.key);
     }
 
-    var f_req = make_f_req(al.key, al.new_imgs, al.type);
-    var q_o = {
-        '_reqid': '1103478',
-        'bl': 'boq_photosuiserver_20180820.09_p0',
-        'f.sid': al.f_sid,
-        'hl': 'ja',
-        'rt': 'c',
-        'soc-app': '165',
-        'soc-device': '1',
-        'soc-platform': '1'
-    };
-    var q = $.param(q_o);
-    var url = 'https://photos.google.com/_/PhotosUi/data/batchexecute?' + q;
-    var data = {'f.req': JSON.stringify(f_req), 'at': al.at_};
-    console.log(data);
-    $.ajax({
-        url: url,
-        type: 'POST',
-        data: data, // req data
-        dataType: 'text', // res data type
-        async: true
-    }).done(
-        done_sort
-    ).fail(
-        fail_func
-    );
-
-}
-
-
-function sortBy(a, b){
-    var an = a.name.toString().toLowerCase();
-    var bn = b.name.toString().toLowerCase();
-    an = an.replace(numP, numReplacer);
-    bn = bn.replace(numP, numReplacer);
-    if(an < bn){
-        return -1;
-    }else if(an > bn){
-        return 1;
-    }
-    return 0;
-}
-
-
-function onAjaxSuccess(res, status, xhr, al){
-    var j_src = res.split(/\n\d+\n/)[1];
-    //console.log(j_src);
-    var j = JSON.parse(j_src);
-    var j2 = JSON.parse(j[0][2]);
-    var io = {};
-    io.key = j2[0][0]; // == imgkey
-    io.name = j2[0][2];
-    io.modified = j2[0][3];
-    al.new_imgs.push(io);
-    console.log(io.name);
-    console.log(io.key);
-
-    addName(io.name);
-    var per = (al.new_imgs.length / al.imgs.length) * 100;
-    addPercent(per);
-    // iは結果が返る前にに上書きされてる
-    if (al.new_imgs.length == al.imgs.length){
-        al.new_imgs.sort(sortBy);
-        sortImgs(al);
-    }
-}
-
-
-function parse_direct_album_page(src, al){
-    var sww = src.split('window.WIZ_global_data = ')[1].split(';')[0];
-    var wiz_global_data = JSON.parse(sww);
-    al.f_sid = wiz_global_data.FdrFJe;
-    al.at_ = wiz_global_data.SNlM0e;
-
-    var script_p = /<script nonce=[^<]+key: 'ds:1'[^<]+<\/script>/;
-    var script_src = src.match(script_p)[0];
-
-    var stat_j_src = script_src.split('data:function(){return ')[1];
-    stat_j_src = stat_j_src.split('}});')[0];
-    var stat_j = JSON.parse(stat_j_src);
-
-    var q_o = {
-        '_reqid': '1201541',
-        'bl': 'boq_photosuiserver_20180820.09_p0',
-        'f.sid': al.f_sid,
-        'hl': 'ja',
-        'rt': 'c',
-        'soc-app': '165',
-        'soc-device': '1',
-        'soc-platform': '1'
-    };
-    var q = $.param(q_o);
-    var url = 'https://photos.google.com/_/PhotosUi/data/batchexecute?' + q;
-
-    al.imgs = stat_j[1];
-    al.new_imgs = [];
-
-    // fetch_album_archive_data(al, al.imgs[0][0]);
-    // return;
-
-    function done_get_img_name(res, status, xhr) {
-        onAjaxSuccess(res, status, xhr, al);
+    onerr(e){
+        e.settings = this.settings;
+        alert(JSON.stringify(e, null, 4));
+        console.log(e);
     }
 
-    function _each(imgkey){
-        var j0 = [imgkey, 1];
-        var j1 = [[[
-            "fDcn4b",
-            JSON.stringify(j0),
-            null,
-            "DMzJyf:0|response"
-        ]]];
-        var data = {'f.req': JSON.stringify(j1), 'at': al.at_};
+    getDirectAlbum(){
+        this.settings = {
+            url: 'https://photos.google.com/' + this.al.type + '/' + this.al.key,
+            type: 'GET',
+            dataType: 'text' // res data type
+        };
+        try {
+            return $.ajax(this.settings);
+        } catch(e) {
+            this.onerr(e);
+            return null;
+        }
+    }
 
-        // jquery slimにajaxない
-        $.ajax({
+    async parseAlbum(){
+        const src = await this.getDirectAlbum();
+        if(! src){return null;}
+        const sww = src.split('window.WIZ_global_data = ')[1].split(';')[0];
+        const wiz_global_data = JSON.parse(sww);
+        this.al.f_sid = wiz_global_data.FdrFJe;
+        this.al.at_ = wiz_global_data.SNlM0e;
+
+        const script_p = /<script nonce=[^<]+key: 'ds:1'[^<]+<\/script>/;
+        const script_src = src.match(script_p)[0];
+
+        let stat_j_src = script_src.split('data:function(){return ')[1];
+        stat_j_src = stat_j_src.split('}});')[0];
+        const stat_j = JSON.parse(stat_j_src);
+        this.al.imgs = stat_j[1];
+        this.al.new_imgs = [];
+        return true;
+    }
+
+    makeImgInfosFreq(imgs){
+        let imgInfosFreq = [];
+        for(let i = 0; i < imgs.length; i++){
+            let imgkey = imgs[i][0];
+            let j0 = [imgkey, 1];
+            let j1 = [
+                "fDcn4b", JSON.stringify(j0),
+                null, (i + 1).toString()
+            ];
+            imgInfosFreq.push(j1);
+        }
+        return [imgInfosFreq];
+    }
+
+    addNewImgs(res){
+        let infos = res.split(/\n\d+\n/);
+        for(var i = 0; i < infos.length; i++){
+            let info = infos[i];
+            if(info.indexOf('"wrb.fr","fDcn4b"') == -1){
+                continue;
+            }
+            let j = JSON.parse(info);
+            let j2 = JSON.parse(j[0][2]);
+            let io = {};
+            io.key = j2[0][0]; // == imgkey
+            io.name = j2[0][2];
+            io.modified = j2[0][3];
+            this.al.new_imgs.push(io);
+            console.log(io.name);
+            console.log(io.key);
+            addName(io.name);
+            let per = (this.al.new_imgs.length / this.al.imgs.length) * 100;
+            addPercent(per);
+        }
+    }
+
+    async getImgInfos(){
+        const q_o = {
+            'rpcids': 'fDcn4b,EX1ySd',
+            '_reqid': '212573',
+            'bl': 'boq_photosuiserver_20190709.14_p0',
+            'f.sid': this.al.f_sid,
+            'hl': 'ja',
+            'rt': 'c',
+            'soc-app': '165',
+            'soc-device': '1',
+            'soc-platform': '1'
+        };
+        const q = $.param(q_o);
+        const url = 'https://photos.google.com/_/PhotosUi/data/batchexecute?' + q;
+        this.settings = {
             url: url,
             type: 'POST',
-            data: data, // req data
-            dataType: 'text', // res data type
-            async: true // 非同期でprogress barに反映
-        }).done(
-            // アロー関数直書きだと変数が次のスレッドに汚染される？
-            done_get_img_name
-        ).fail(
-            fail_func
-        );
+            dataType: 'text' // res data type
+        };
+
+        const byNum = 50;
+
+        for(let i = 0; i < this.al.imgs.length; i = i + byNum){
+            let coimgs = this.al.imgs.slice(i, i + byNum);
+            let imgInfosFreq = this.makeImgInfosFreq(coimgs);
+            console.log(imgInfosFreq);
+            this.settings.data = {
+                'f.req': JSON.stringify(imgInfosFreq),
+                'at': this.al.at_
+            };
+            let res;
+            try {
+                res = await $.ajax(this.settings);
+            } catch(e) {
+                this.onerr(e);
+                return null;
+            }
+            this.addNewImgs(res);
+        }
+        return true;
     }
 
-    for (var i = 0; i < al.imgs.length; i++) {
-        var imgkey = al.imgs[i][0];
-        // alert(imgkey);
-        var tm = 1000 * Math.floor(i / 5); // 5files/sec
-        setTimeout(_each, tm, imgkey);
-    }
-}
-
-
-
-
-function getDirectAlbum(al) {
-    console.log('album_key:' + al.key);
-    function done_get_album(res, status, xhr) {
-        parse_direct_album_page(res, al);
+    sortBy(a, b){
+        let an = a.name.toString().toLowerCase();
+        let bn = b.name.toString().toLowerCase();
+        an = an.replace(numP, numReplacer);
+        bn = bn.replace(numP, numReplacer);
+        if(an < bn){
+            return -1;
+        }else if(an > bn){
+            return 1;
+        }
+        return 0;
     }
 
-    // 単にURLがアルバムというだけではソースが一定で無いので
-    // 取得したほうが早い。
-    $.ajax({
-        url: 'https://photos.google.com/' + al.type + '/' + al.key,
-        type: 'GET',
-        dataType: 'text', // res data type
-        async: true
-    }).done(
-        done_get_album
-    ).fail(
-        fail_func
-    );
+    makeSortFreq(baseImg, followImgs){
+        let XXimg_keysXX = [];
+        for (let i = 0; i < followImgs.length; i++) {
+            let io = followImgs[i];
+            XXimg_keysXX.push([[io.key]]);
+        }
+        var num = 3;
+        // if(typ == 'share'){num = 3;}
+        var j1 = [
+            this.al.key,
+            [],
+            num,
+            null,
+            XXimg_keysXX, // ベースに続く順
+            [[baseImg.key]]// ベースになるメディア
+        ];
+        return [
+            [
+                [
+                    "QD9nKf",
+                    JSON.stringify(j1),
+                    null,
+                    "generic"
+                ]
+            ]
+        ];
+
+    }
+
+    sortProgress(end, len){
+        let per = Math.round(end / len * 100);
+        if(per > 100){per = 100;}
+        addName('Sorted ' + per + '%');
+        addPercent(per);
+    }
+
+    async sortImgs(){
+        const q_o = {
+            '_reqid': '1103478',
+            'bl': 'boq_photosuiserver_20190709.14_p0',
+            'f.sid': this.al.f_sid,
+            'hl': 'ja',
+            'rt': 'c',
+            'soc-app': '165',
+            'soc-device': '1',
+            'soc-platform': '1'
+        };
+        const q = $.param(q_o);
+        const url = 'https://photos.google.com/_/PhotosUi/data/batchexecute?' + q;
+        this.settings = {
+            url: url,
+            type: 'POST',
+            dataType: 'text' // res data type
+        };
+
+        this.al.new_imgs.sort(this.sortBy);
+        const len = this.al.new_imgs.length;
+        const byNum = 100;
+        let baseImg = this.al.new_imgs[0];
+        for(let i = 1; i < len; i = i + byNum){
+            let end = i + byNum;
+            let followImgs = this.al.new_imgs.slice(i, end);
+            let freq = this.makeSortFreq(baseImg, followImgs);
+            let data = {
+                'f.req': JSON.stringify(freq), 'at': this.al.at_
+            };
+            console.log(data);
+            this.settings.data = data;
+            try {
+                await $.ajax(this.settings);
+            } catch(e) {
+                this.onerr(e);
+                return null;
+            }
+            this.sortProgress(end, len);
+            // 次の基準はソート済みの最後
+            baseImg = followImgs[followImgs.length - 1];
+        }
+        console.log('sorts success');
+        return true;
+    }
+
+    async run(){
+        spin();
+        let success = await this.parseAlbum();
+        if(! success){return;}
+        success = await this.getImgInfos();
+        if(! success){return;}
+        success = await this.sortImgs();
+        if(! success){return;}
+        reload(this.al);
+        stop();
+    }
+
 }
 
 
