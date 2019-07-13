@@ -3,11 +3,11 @@ function addName(nm) {
     $("h5").text(nm);
 }
 
-function spin(){
+function myspin(){
     $('i').addClass('rotate-anime');
 }
 
-function stop(){
+function mystop(){
     $('i').removeClass('rotate-anime');
 }
 
