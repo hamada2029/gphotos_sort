@@ -1,8 +1,16 @@
+/*globals chrome */
 
 
 function checkForValidUrl(tabId, info, tab) {
     // permissions: ["tabs"] on manifest
-    if (tab.url.match(/https:\/\/photos.google.com\/(album|share)\//)) {
+
+    // '\u003f' == '?'
+    var re = new RegExp(
+        'https://photos.google.com/' +
+        '(u/([0-9]+)/)?(album|share)/([^/\u003f]+)'
+    );
+
+    if(tab.url.match(re)) {
         // show the page action.
         chrome.pageAction.show(tabId);
     }

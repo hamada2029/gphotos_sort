@@ -16,7 +16,9 @@
         {
             "matches": [
                 "https://photos.google.com/album/*",
-                "https://photos.google.com/share/*"
+                "https://photos.google.com/share/*",
+                "https://photos.google.com/u/*/album/*",
+                "https://photos.google.com/u/*/share/*"
             ],
             "js": [
                 "jquery-3.3.1.min.js",

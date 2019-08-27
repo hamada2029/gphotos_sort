@@ -7,6 +7,7 @@ class Sorter{
         this.settings = {};
         console.log('album_key:' + al.key);
         this.numP = /\n\d+\n/;
+        this.url_f = `https://photos.google.com/u/${this.al.unum}/`;
     }
 
     onerr(e){
@@ -18,7 +19,9 @@ class Sorter{
 
     getDirectAlbum(){
         this.settings = {
-            url: 'https://photos.google.com/' + this.al.type + '/' + this.al.key,
+            url: this.url_f +
+                this.al.type + '/' +
+                this.al.key,
             type: 'GET',
             dataType: 'text' // res data type
         };
@@ -44,7 +47,7 @@ class Sorter{
             'soc-platform': '1'
         };
         const q = $.param(q_o);
-        return 'https://photos.google.com/_/PhotosUi/data/batchexecute?' + q;
+        return this.url_f + '_/PhotosUi/data/batchexecute?' + q;
     }
 
     async setNextImgs(nextToken){
@@ -107,8 +110,7 @@ class Sorter{
             nextToken = await this.setNextImgs(nextToken);
             if(nextToken === null){return null;}
         }
-        const alInfo = stat_j[3];
-        console.log(alInfo);
+        console.log(albumInfo);
         console.log(this.al.imgs.length + ' imgs');
         this.al.new_imgs = [];
         return true;
@@ -239,6 +241,7 @@ class Sorter{
         const len = this.al.new_imgs.length;
         const byNum = 100;
         let baseImg = this.al.new_imgs[0];
+        // 1つめは基準になるので2つめから
         for(let i = 1; i < len; i = i + byNum){
             let end = i + byNum;
             let followImgs = this.al.new_imgs.slice(i, end);

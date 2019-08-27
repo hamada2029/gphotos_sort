@@ -39,15 +39,20 @@ function onTabs(tabs) {
     var al = {};
     al.tab = activeTab;
     console.log(activeTab.url);
-    var m = activeTab.url.match(
-        /https:\/\/photos.google.com\/(album|share)\/([^\/\?]+)/
+    var re = new RegExp(
+        'https://photos.google.com/' +
+        '(u/([0-9]+)/)?(album|share)/([^/\u003f]+)'
     );
+    var m = activeTab.url.match(re);
+    console.log(m);
     if (! m) {
         alert('Not album');
         return;
     }
-    al.type = m[1];
-    al.key = m[2];
+    al.unum = m[2];
+    if(! al.unum){al.unum = '0';}
+    al.type = m[3];
+    al.key = m[4];
     new Sorter(al).run();
 }
 
