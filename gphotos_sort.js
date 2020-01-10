@@ -92,7 +92,7 @@ class Sorter{
         this.al.f_sid = wiz_global_data.FdrFJe;
         this.al.at_ = wiz_global_data.SNlM0e;
 
-        const script_p = /<script nonce=[^<]+key: 'ds:1'[^<]+<\/script>/;
+        const script_p = /<script nonce=[^<]+key: 'ds:\d+'[^<]+<\/script>/;
         const script_src = src.match(script_p)[0];
 
         let stat_j_src = script_src.split('data:function(){return ')[1];

@@ -1,8 +1,10 @@
+/*globals $ chrome Sorter*/
 
 function addName(nm) {
     $("h5").text(nm);
 }
 
+/* eslint-disable no-unused-vars */
 function myspin(){
     $('i').addClass('rotate-anime');
 }
@@ -27,8 +29,9 @@ function reload(al){
 
 
 function onError(error) {
-    console.log('Error: ${error}');
+    console.log(`Error: ${error}`);
 }
+/* eslint-enable no-unused-vars */
 
 
 function onTabs(tabs) {
