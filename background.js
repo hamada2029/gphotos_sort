@@ -4,13 +4,15 @@
 function checkForValidUrl(tabId, info, tab) {
     // permissions: ["tabs"] on manifest
 
-    // '\u003f' == '?'
-    var re = new RegExp(
-        'https://photos.google.com/' +
-        '(u/([0-9]+)/)?(album|share)/([^/\u003f]+)'
+    const url_p = new RegExp(
+        'https://photos.google.com/(u/([0-9]+)/)?(album|share)/([^/?]+)'
     );
 
-    if(tab.url.match(re)) {
+    if(tab.url.indexOf('/photo/') > -1){
+        return;
+    }
+
+    if(tab.url.match(url_p)) {
         // show the page action.
         chrome.pageAction.show(tabId);
     }

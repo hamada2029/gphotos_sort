@@ -1,74 +1,100 @@
-/*globals $ chrome Sorter*/
+/*globals chrome*/
 
-function addName(nm) {
-    $("h5").text(nm);
+function addName(nm){
+    document.getElementById('h5_1').innerText = nm;
 }
 
 /* eslint-disable no-unused-vars */
 function myspin(){
-    $('i').addClass('rotate-anime');
+    document.getElementById('i1').classList.add('rotate-anime');
 }
 
 function mystop(){
-    $('i').removeClass('rotate-anime');
+    document.getElementById('i1').classList.remove('rotate-anime');
 }
 
-function addPercent(per) {
-    $("#prog1").val(per);
-}
-
-
-function buttonEnable() {
-    $("#run_button").prop("disabled", false);
+function addPercent(per){
+    document.getElementById('prog1').value = per;
 }
 
 
-function reload(al){
-    chrome.tabs.update(al.tab.id, {url: al.tab.url});
+function buttonEnable(){
+    document.getElementById('run_button').disabled = false;
 }
 
 
-function onError(error) {
-    console.log(`Error: ${error}`);
+function reload(tab){
+    chrome.tabs.update(tab.id, {url: tab.url});
 }
-/* eslint-enable no-unused-vars */
 
 
-function onTabs(tabs) {
-    console.log(tabs.length + 'tabs');
-    console.log(tabs);
-    var activeTab = tabs[0];
-
-    var al = {};
-    al.tab = activeTab;
-    console.log(activeTab.url);
-    var re = new RegExp(
-        'https://photos.google.com/' +
-        '(u/([0-9]+)/)?(album|share)/([^/\u003f]+)'
+function sendToContents(){
+    const url_p = new RegExp(
+        'https://photos.google.com/(u/([0-9]+)/)?(album|share)/([^/?]+)'
     );
-    var m = activeTab.url.match(re);
-    console.log(m);
-    if (! m) {
-        alert('Not album');
-        return;
-    }
-    al.unum = m[2];
-    if(! al.unum){al.unum = '0';}
-    al.type = m[3];
-    al.key = m[4];
-    new Sorter(al).run();
-}
-
-
-function pushButton() {
     this.disabled = true;
     addName('Sorting...');
     chrome.tabs.query(
-        {currentWindow: true, active: true},
-        onTabs
+        {active: true, currentWindow: true},
+        function(tabs){
+            console.log(tabs.length + 'tabs');
+            console.log(tabs);
+            if(tabs.length == 0){
+                alert('no tabs.');
+                buttonEnable();
+                return;
+            }
+            console.log(tabs[0].url);
+            if(! tabs[0].url.match(url_p)){
+                alert('not album page');
+                buttonEnable();
+                return;
+            }
+            if(tabs[0].url.indexOf('/photo/') > -1){
+                alert('not album page');
+                buttonEnable();
+                return;
+            }
+            if(tabs[0].status != 'complete'){
+                alert('album page is loading now.');
+                buttonEnable();
+                return;
+            }
+            chrome.tabs.sendMessage(
+                tabs[0].id,
+                {to: 'content.js', content: 'run Sorter'},
+                function(response){
+                    console.log(response);
+                    if(! response){
+                        alert('no response from content.js');
+                        buttonEnable();
+                        reload(tabs[0]);
+                    }
+                }
+            );
+        }
     );
 }
-$("#run_button").on('click', pushButton);
+document.getElementById('run_button').addEventListener(
+    'click', sendToContents
+);
 
-
+function messageReceived(msg, sender, sendResponse) {
+    console.log(msg);
+    console.log(sender);
+    sendResponse('Thanks from popup.js');
+    if(msg.to != 'popup.js'){return;}
+    if(msg.func == 'addName'){
+        addName(msg.args[0]);
+    }else if(msg.func == 'myspin'){
+        myspin();
+    }else if(msg.func == 'mystop'){
+        mystop();
+    }else if(msg.func == 'addPercent'){
+        addPercent(msg.args[0]);
+    }else if(msg.func == 'buttonEnable'){
+        buttonEnable();
+    }
+}
+chrome.runtime.onMessage.addListener(messageReceived);
 

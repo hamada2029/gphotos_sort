@@ -2,7 +2,7 @@
     "name": "GPhotos Sort",
     "version": "1.0",
     "manifest_version": 2,
-    "description": "Google photos album sort.",
+    "description": "Sort album by name for Google photos.",
     "background": {
         "scripts": ["background.js"],
         "persistent": false
@@ -15,13 +15,19 @@
     "content_scripts":[
         {
             "matches": [
+                "https://photos.google.com/*",
                 "https://photos.google.com/album/*",
                 "https://photos.google.com/share/*",
                 "https://photos.google.com/u/*/album/*",
                 "https://photos.google.com/u/*/share/*"
             ],
             "js": [
-                "jquery-3.3.1.min.js",
+                "lib/rq.js",
+                "lib/numRep.js",
+                "lib/send_msg.js",
+                "lib/Gui.js",
+                "lib/Album.js",
+                "lib/Sorter.js",
                 "content.js"
             ]
         }
