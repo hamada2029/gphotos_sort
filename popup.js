@@ -28,56 +28,61 @@ function reload(tab){
 }
 
 
-function sendToContents(){
+function onTabs(tabs){
     const url_p = new RegExp(
         'https://photos.google.com/(u/([0-9]+)/)?(album|share)/([^/?]+)'
     );
+    console.log(tabs.length + 'tabs');
+    console.log(tabs);
+    if(tabs.length == 0){
+        alert('no tabs.');
+        buttonEnable();
+        return;
+    }
+    console.log(tabs[0].url);
+    if(! tabs[0].url.match(url_p)){
+        alert('not album page');
+        buttonEnable();
+        return;
+    }
+    if(tabs[0].url.indexOf('/photo/') > -1){
+        alert('not album page');
+        buttonEnable();
+        return;
+    }
+    if(tabs[0].status != 'complete'){
+        alert('album page is loading now.');
+        buttonEnable();
+        return;
+    }
+    chrome.tabs.sendMessage(
+        tabs[0].id,
+        {to: 'content.js', content: 'run Sorter'},
+        function(response){
+            console.log(response);
+            if(! response){
+                alert('no response from content.js');
+                buttonEnable();
+                reload(tabs[0]);
+            }
+        }
+    );
+}
+
+
+
+function sendToContents(){
     this.disabled = true;
     addName('Sorting...');
     chrome.tabs.query(
         {active: true, currentWindow: true},
-        function(tabs){
-            console.log(tabs.length + 'tabs');
-            console.log(tabs);
-            if(tabs.length == 0){
-                alert('no tabs.');
-                buttonEnable();
-                return;
-            }
-            console.log(tabs[0].url);
-            if(! tabs[0].url.match(url_p)){
-                alert('not album page');
-                buttonEnable();
-                return;
-            }
-            if(tabs[0].url.indexOf('/photo/') > -1){
-                alert('not album page');
-                buttonEnable();
-                return;
-            }
-            if(tabs[0].status != 'complete'){
-                alert('album page is loading now.');
-                buttonEnable();
-                return;
-            }
-            chrome.tabs.sendMessage(
-                tabs[0].id,
-                {to: 'content.js', content: 'run Sorter'},
-                function(response){
-                    console.log(response);
-                    if(! response){
-                        alert('no response from content.js');
-                        buttonEnable();
-                        reload(tabs[0]);
-                    }
-                }
-            );
-        }
+        onTabs
     );
 }
 document.getElementById('run_button').addEventListener(
     'click', sendToContents
 );
+
 
 function messageReceived(msg, sender, sendResponse) {
     console.log(msg);
