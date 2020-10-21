@@ -33,3 +33,20 @@ content.js埋め込まれない
 
 
 })();
+
+
+// INJECT TEST------------------------------------
+
+// function injectScript(file_path, tag) {
+//     var node = document.getElementsByTagName(tag)[0];
+//     var script = document.createElement('script');
+//     script.setAttribute('type', 'text/javascript');
+//     script.setAttribute('src', file_path);
+//     script.setAttribute('g_ext_id', chrome.runtime.id);
+//     script.setAttribute('id', 'injected1');
+//     node.appendChild(script);
+// }
+// injectScript(
+//     chrome.extension.getURL('content2.js'),
+//     'body'
+// );
