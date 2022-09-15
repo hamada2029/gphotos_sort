@@ -1,7 +1,7 @@
 {
     "name": "Google Photos Sorter By Name",
     "homepage_url": "https://github.com/hamada2029/gphotos_sort#google-photos-sort-by-name",
-    "version": "0.27",
+    "version": "0.28",
     "manifest_version": 3,
     "description": "Sort album by name for Google photos.",
     "background": {
