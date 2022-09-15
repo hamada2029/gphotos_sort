@@ -1,12 +1,11 @@
 {
     "name": "Google Photos Sorter By Name",
     "homepage_url": "https://github.com/hamada2029/gphotos_sort#google-photos-sort-by-name",
-    "version": "0.25",
-    "manifest_version": 2,
+    "version": "0.27",
+    "manifest_version": 3,
     "description": "Sort album by name for Google photos.",
     "background": {
-        "scripts": ["background.js"],
-        "persistent": false
+        "service_worker": "background.js"
     },
     "icons":{
         "16" : "i16.png",
@@ -33,7 +32,7 @@
             ]
         }
     ],
-    "page_action": {
+    "action": {
         "default_popup": "popup.html",
         "default_icon": {
             "16" : "i16.png",
@@ -46,6 +45,9 @@
         "tabs"
     ],
     "web_accessible_resources": [
-        "content2.js"
+        {
+            "resources": ["content2.js"],
+            "matches": ["https://photos.google.com/*"]
+        }
     ]
 }
