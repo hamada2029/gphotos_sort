@@ -20,5 +20,5 @@ function checkForValidUrl(tabId, info, tab) {
     }
 }
 
-// URLをチェック
+// Check the URL
 chrome.tabs.onUpdated.addListener(checkForValidUrl);

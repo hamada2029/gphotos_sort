@@ -1,7 +1,7 @@
 /*globals chrome*/
 
 
-// injectするなら起動ボタンなんかも元ページに埋め込みたい
+// If we inject, consider embedding a start button on the page.
 
 
 console.log(window.AF_initDataChunkQueue);
@@ -12,7 +12,7 @@ function sendMsg(g_ext_id, func, args){
         {
             to: 'popup.js',
             func: func,
-            // [a, b] = [10, 20]でける
+            // Supports array destructuring like [a, b] = [10, 20]
             args: args
         },
         function(response){

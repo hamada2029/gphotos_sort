@@ -1,9 +1,8 @@
 /*globals chrome Sorter*/
 
 /*
-JavaScriptでDOMとURLを変えられただけだと
-content.js埋め込まれない
-階層が上のURLをmanifestのmatchesに入れないとだめ
+If the page only changes DOM/URL via JS, content.js may not be injected.
+Make sure higher-level URLs are included in manifest matches.
 */
 
 (function() {
@@ -15,11 +14,10 @@ content.js埋め込まれない
             console.log(msg);
             console.log(sender);
 
-            // sendResponseしないと
+            // Without sendResponse, popup may see:
             // Unchecked runtime.lastError:
             // The message port closed
             // before a response was received.
-            // がpopupで発生する。
             sendResponse('Thanks to popup.js from content.js');
             if(msg.to != 'content.js'){return;}
 
